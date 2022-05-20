@@ -6,19 +6,15 @@ Collection of advisory:
 Idea:
 PHP <= 5.6.40 with GMP + packages symfony/process and symfony/routing + fast __destruct
 
-POC source
-<link>
+POC source: [./symfony_process_gmp/poc.php](./symfony_process_gmp/poc.php)
 
 Advisory
-<git link>
 
 
 ### symfony/dependency-injection
 Idea:
 PHP <= 5.6.40 with GMP + packages symfony/dependency-injection and symfony/routing + var overwrite into boolean 
 
-POC source:
-<src>
+POC source: [./symfony_rewrite_into_bool/generated_poi/](./symfony_rewrite_into_bool/generated_poi/)
 
 Advisory:
-<git link>
