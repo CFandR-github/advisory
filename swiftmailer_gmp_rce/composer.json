@@ -1,0 +1,7 @@
+{
+    "require": {
+        "swiftmailer/swiftmailer": "5.4.12",    	
+        "pear/net_geoip":"1.0"
+    },
+    "minimum-stability": "dev"
+}
