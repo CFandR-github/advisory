@@ -21,5 +21,4 @@ POC source: [./symfony_rewrite_into_bool/tester.php](./symfony_rewrite_into_bool
 
 
 Project channel in Telegram:
-
 [https://t.me/CFandR_project](https://t.me/CFandR_project)
