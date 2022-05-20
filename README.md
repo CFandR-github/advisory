@@ -18,7 +18,7 @@ POC source: [./symfony_rewrite_into_bool/tester.php](./symfony_rewrite_into_bool
 
 [Advisory](./symfony_rewrite_into_bool/symfony_rewrite_with_boolean_GMP_exploit.pdf)
 
-## swiftmailer/swiftmailer <= 5.4.12 0day RCE GMP
+## swiftmailer/swiftmailer <= 5.4.12 0day GMP RCE
 Idea:
 PHP <= 5.6.40 with GMP + packages swiftmailer/swiftmailer and pear/net_geoip
 
