@@ -15,6 +15,6 @@ Advisory
 Idea:
 PHP <= 5.6.40 with GMP + packages symfony/dependency-injection and symfony/routing + var overwrite into boolean 
 
-POC source: [./symfony_rewrite_into_bool/generated_poi/](./symfony_rewrite_into_bool/generated_poi/)
+POC source: [./symfony_rewrite_into_bool/tester.php](./symfony_rewrite_into_bool/tester.php)
 
-Advisory:
+Advisory
