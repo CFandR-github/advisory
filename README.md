@@ -20,5 +20,6 @@ POC source: [./symfony_rewrite_into_bool/tester.php](./symfony_rewrite_into_bool
 [Advisory](./symfony_rewrite_into_bool/symfony_rewrite_with_boolean_GMP_exploit.pdf)
 
 
+### Contacts
 Project channel in Telegram:
 - [https://t.me/CFandR_project](https://t.me/CFandR_project)
