@@ -18,3 +18,7 @@ PHP <= 5.6.40 with GMP + packages symfony/dependency-injection and symfony/routi
 POC source: [./symfony_rewrite_into_bool/tester.php](./symfony_rewrite_into_bool/tester.php)
 
 [Advisory](./symfony_rewrite_into_bool/symfony_rewrite_with_boolean_GMP_exploit.pdf)
+
+
+Project news channel in Telegramm:
+[https://t.me/CFandR_project](https://t.me/CFandR_project)
