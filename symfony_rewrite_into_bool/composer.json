@@ -1,0 +1,7 @@
+{
+    "require": {
+        "psr/container":"1.0.0",
+        "symfony/dependency-injection": "3.4.47",
+        "symfony/routing": "3.4.47"
+    }
+}
