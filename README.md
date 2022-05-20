@@ -8,7 +8,7 @@ PHP <= 5.6.40 with GMP + packages symfony/process and symfony/routing + fast __d
 
 POC source: [./symfony_process_gmp/poc.php](./symfony_process_gmp/poc.php)
 
-Advisory
+[Advisory](./symfony_process_gmp/symfony_3.4.47_0day_GMP_exploit.pdf)
 
 
 ### symfony/dependency-injection
@@ -17,4 +17,4 @@ PHP <= 5.6.40 with GMP + packages symfony/dependency-injection and symfony/routi
 
 POC source: [./symfony_rewrite_into_bool/tester.php](./symfony_rewrite_into_bool/tester.php)
 
-Advisory
+[Advisory](./symfony_rewrite_into_bool/symfony_rewrite_with_boolean.pdf)
