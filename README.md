@@ -22,9 +22,9 @@ POC source: [./symfony_rewrite_into_bool/tester.php](./symfony_rewrite_into_bool
 Idea:
 PHP <= 5.6.40 with GMP + packages swiftmailer/swiftmailer and pear/net_geoip
 
-POC source: [qqqq](qqq)
+POC source: [./swiftmailer_gmp_rce/poc.php](./swiftmailer_gmp_rce/poc.php)
 
-[Advisory](./qqqq)
+[Advisory](./swiftmailer_gmp_rce/swiftmailer_0day_GMP_exploit.pdf)
 
 # Contacts
 Project channel in Telegram:
