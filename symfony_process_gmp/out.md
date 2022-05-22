@@ -1,8 +1,8 @@
-##Unfixed GMP Type Confusion
+###Unfixed GMP Type Confusion
 
-Requirements: PHP &lt;= 5.6.40
-Compiled with: '--with-gmp', '--enable-sigchild'
-Software: packages Symfony/process, symfony/routing &lt;= 3.4.47 installed from Composer
+Requirements: PHP &lt;= 5.6.40\
+Compiled with: '--with-gmp', '--enable-sigchild'\
+Software: packages Symfony/process, symfony/routing &lt;= 3.4.47 installed from Composer\
 
 Original GMP Type confusion bug was found by taoguangchen researcher and reported \[1\].
 The idea of exploit is to change zval structure \[2\] of GMP object during deserialization process.
@@ -15,8 +15,8 @@ In original exploit author says about changing zval type using this code lines:
 ![](./images/GMP_writeup_html_16a661db3f3f03db.png)
 
 PHP supports serialization/deserialization of references. It is done using "R:" syntax. $this→ryat property is a reference to GMP object. Rewrite of $this→ryat property leads to rewrite of GMP zval.
-There are many ways to rewrite zval in PHP, easies is code line like this:
-$this→a = $this→b;
+There are many ways to rewrite zval in PHP, easies is code line like this:\
+$this→a = $this→b;\
 Part of exploit is to find this line in code of real web-application, and execute it during deserialization process.
 
 Bug in GMP extension was "fixed" as part of delayed \_\_wakeup patch. But source code in gmp.c file was not patched. So bypassing delayed \_\_wakeup would result that this bug is still exploitable.
