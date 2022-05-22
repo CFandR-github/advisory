@@ -164,9 +164,9 @@ To write 0x1 into handle id no need to create integer zval, attacker can use boo
 
 References:
 
-\[1\] <font color="#000080"><span lang="zxx"><u><https://bugs.php.net/bug.php?id=70513></u></span></font>
-\[2\] <font color="#000080"><span lang="zxx"><u>[https://www.phpinternalsbook.com/php5/zvals/basic\_structure.html](https://www.phpinternalsbook.com/php5/zvals/basic_structure.html)</u></span></font>
-\[3\] <font color="#000080"><span lang="zxx"><u><https://www.php.net/manual/en/class.serializable></u></span></font>
-\[4\] <font color="#000080"><span lang="zxx"><u><http://packagist.org/packages/symfony/process></u></span></font>
-\[5\] <font color="#000080"><span lang="zxx"><u><http://packagist.org/packages/symfony/routing></u></span></font>
-\[6\] <font color="#000080"><span lang="zxx"><u><https://getcomposer.org/></u></span></font>
+\[1\] <font color="#000080"><span lang="zxx"><u><https://bugs.php.net/bug.php?id=70513></u></span></font>\
+\[2\] <font color="#000080"><span lang="zxx"><u>[https://www.phpinternalsbook.com/php5/zvals/basic\_structure.html](https://www.phpinternalsbook.com/php5/zvals/basic_structure.html)</u></span></font>\
+\[3\] <font color="#000080"><span lang="zxx"><u><https://www.php.net/manual/en/class.serializable></u></span></font>\
+\[4\] <font color="#000080"><span lang="zxx"><u><http://packagist.org/packages/symfony/process></u></span></font>\
+\[5\] <font color="#000080"><span lang="zxx"><u><http://packagist.org/packages/symfony/routing></u></span></font>\
+\[6\] <font color="#000080"><span lang="zxx"><u><https://getcomposer.org/></u></span></font>\
