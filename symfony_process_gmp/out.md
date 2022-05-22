@@ -1,8 +1,8 @@
-###Unfixed GMP Type Confusion
+#Unfixed GMP Type Confusion
 
 Requirements: PHP &lt;= 5.6.40\
 Compiled with: '--with-gmp', '--enable-sigchild'\
-Software: packages Symfony/process, symfony/routing &lt;= 3.4.47 installed from Composer\
+Software: packages symfony/process, symfony/routing &lt;= 3.4.47 installed from Composer
 
 Original GMP Type confusion bug was found by taoguangchen researcher and reported \[1\].
 The idea of exploit is to change zval structure \[2\] of GMP object during deserialization process.
@@ -20,10 +20,10 @@ $this→a = $this→b;\
 Part of exploit is to find this line in code of real web-application, and execute it during deserialization process.
 
 Bug in GMP extension was "fixed" as part of delayed \_\_wakeup patch. But source code in gmp.c file was not patched. So bypassing delayed \_\_wakeup would result that this bug is still exploitable.
+
 Delayed \_\_wakeup patch was introduced in PHP 5.6.30. Generally it was a patch to prevent use-after-free bugs in unserialize. Exploits using use-after-free bugs are based on removing zval’s from memory in the middle of deserialization process and further reusing freed memory. Introduced patch suspends execution of object’s \_\_wakeup method after deserialization process finishes. It prevents removing zval’s from memory during deserialization process.
 
-There is another way to execute code in the middle of deserialization in PHP.
-In PHP there exists Serializable interface \[3\] It is for classes that implement custom serialization/deserialization methods. Deserialization of these classes can not be delayed. They have special syntax in unserialize starting with "C:".
+But there is another way to execute code in the middle of deserialization in PHP. In PHP there exists Serializable interface \[3\] It is for classes that implement custom serialization/deserialization methods. Deserialization of these classes can not be delayed. They have special syntax in unserialize starting with "C:".\
 In real web-apps "unserilaize" methods are small and don’t have code lines to rewrite zval.
 <pre class="western">public function unserialize($data) {
 	unserialize($data);
@@ -35,7 +35,7 @@ If $data is invalid serialization string (bad format), unserialize($data) call w
 As real-world example two packages from Symfony were taken: symfony/process \[4\] and symfony/routing \[5\]. These packages are part of Drupal/PHPBB3 and other projects. Packages are installed from Composer manager \[6\].
 
 Create composer.json file:\
-$ cat composer.json\
+$ cat composer.json
 <pre class="western">{
  	"require": {
  	"symfony/process": "v3.4.47",
@@ -51,8 +51,8 @@ Search for code line to rewrite zval:\
 $this-&gt;exitcode = $this→processInformation\['exitcode'\];\
 This line located in method of class Process and *very possible* can be reached from \_\_destruct method.
 
-Search for class that implements Serializable
-./routing/Route.php:class Route implements \\Serializable
+Search for class that implements Serializable\
+./routing/Route.php:class Route implements \\Serializable\
 It has unserialize method with another unserialize function call.
 ![](./images/GMP_writeup_html_26f81e12ef36bdd5.png)
 
