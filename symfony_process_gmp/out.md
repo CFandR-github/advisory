@@ -1,12 +1,11 @@
-<p align="center"> Unfixed GMP Type Confusion </p>
-
+##Unfixed GMP Type Confusion
 Requirements: PHP &lt;= 5.6.40
 Compiled with: '--with-gmp', '--enable-sigchild'
 Software: packages Symfony/process, symfony/routing &lt;= 3.4.47 installed from Composer
+
 Original GMP Type confusion bug was found by taoguangchen researcher and reported \[1\].
 The idea of exploit is to change zval structure \[2\] of GMP object during deserialization process.
 In original exploit author says about changing zval type using this code lines:
-
 <pre class="western">	function __wakeup()
         {
             $this->ryat = 1;
@@ -76,22 +75,19 @@ Continue execution.
 Execution reaches second unserialize function call, located in unserialize method of Route class.
 ![](./images/GMP_writeup_html_26f81e12ef36bdd5.png)
 
-Because of invalid serialization string (it hash "A" char <span lang="en-US">instead of closing bracket </span>at the end), php\_var\_unserialize call returns <span style="font-style: normal">false</span> and zval\_dtor(return\_value) is called. If the zval\_dtor argument has object type, it’s \_\_destruct method executes.
+Because of invalid serialization string (it hash "A" char instead of closing bracket at the end), php\_var\_unserialize call returns <span style="font-style: normal">false</span> and zval\_dtor(return\_value) is called. If the zval\_dtor argument has object type, it’s \_\_destruct method executes.
 
 ![](./images/GMP_writeup_html_6df380b4eb83bc24.png)
 
 Output return\_value using printzv macros. It is object of *Process* class with unserialized properties.
-
 ![](./images/GMP_writeup_html_fabf90e0e3453489.png)
 
 Start POI chain from \_\_destruct method of Process class:
-
 ![](./images/GMP_writeup_html_94d4c6fdecb81873.png)
 
 Code line to rewrite zval is located in close() method.
 $this-&gt;exitcode = $this→processInformation\['exitcode'\];
 Execution reaches updateStatus method:
-
 ![](./images/GMP_writeup_html_a69107d944a8c250.png)
 
 Another problem is that proc\_get\_status returns false because $this→process is not resource.
