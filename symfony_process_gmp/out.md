@@ -15,8 +15,8 @@ In original exploit author says about changing zval type using this code lines:
 ![](./images/GMP_writeup_html_16a661db3f3f03db.png)
 
 PHP supports serialization/deserialization of references. It is done using "R:" syntax. $this→ryat property is a reference to GMP object. Rewrite of $this→ryat property leads to rewrite of GMP zval.
-There are many ways to rewrite zval in PHP, easies is code line like this:\
-<pre>$this→a = $this→b;</pre>
+There are many ways to rewrite zval in PHP, easies is code line like this:
+<pre>$this->a = $this->b;</pre>
 Part of exploit is to find this line in code of real web-application, and execute it during deserialization process.
 
 Bug in GMP extension was "fixed" as part of delayed \_\_wakeup patch. But source code in gmp.c file was not patched. So bypassing delayed \_\_wakeup would result that this bug is still exploitable. Delayed \_\_wakeup patch was introduced in PHP 5.6.30. Generally it was a patch to prevent use-after-free bugs in unserialize. Exploits using use-after-free bugs are based on removing zval’s from memory in the middle of deserialization process and further reusing freed memory. Introduced patch suspends execution of object’s \_\_wakeup method after deserialization process finishes. It prevents removing zval’s from memory during deserialization process.
@@ -44,8 +44,8 @@ Run composer installer:\
 $ composer install
 
 Installer creates *vendor* directory with PHP source files.
-Search for code line to rewrite zval:\
-<pre>$this-&gt;exitcode = $this→processInformation\['exitcode'\];</pre>
+Search for code line to rewrite zval:
+<pre>$this-&gt;exitcode = $this->processInformation['exitcode'];</pre>
 This line located in method of class Process and *very possible* can be reached from \_\_destruct method.
 
 Search for class that implements Serializable\
@@ -113,8 +113,7 @@ abstract class AbstractPipes implements PipesInterface
 
 ![](./images/GMP_writeup_html_529ef0cbcaa7b33b.png)
 
-Make $this-&gt;pipes reference to $this→processInformation. They point into same zval in memory. When $this→pipes is assigned an empty array, then $this→processInformation too.\
-$this-&gt;fallbackStatus is set in serialized string and merged with $this-&gt;processInformation
+Make $this-&gt;pipes reference to $this→processInformation. They point into same zval in memory. When $this→pipes is assigned an empty array, then $this→processInformation too. $this-&gt;fallbackStatus is set in serialized string and merged with $this-&gt;processInformation
 
 ![](./images/GMP_writeup_html_471883d5b1b0d88c.png)
 
