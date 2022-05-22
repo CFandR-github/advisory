@@ -110,12 +110,12 @@ To pass $this→isSigchildEnabled() condition PHP needs to be compiled with "–
 If processInformation is false, addition of false and array gives Fatal error and script stops. But we need to write into processInformation by somehow.
 In PHP language, variable is deleted from memory, when it’s refcount becomes 0. If a variable is an object, it’s \_\_destructor method executes. Look closer on this line:
 <pre>$this-&gt;processInformation = proc_get_status($this→process);</pre>
-Rewrite of processInformation property can lead to \_\_destruct execution because refcount becomes 0. We can use reference (R:) again to rewrite processInformation in called \_\_destruct method. ProcessInformation needs to have an array type not to throw Fatal error. There is another class in symfony/process that has empty array assignment.
+Rewrite of processInformation property can lead to \_\_destruct execution because refcount becomes 0. We can use reference (R:) again to rewrite processInformation in called \_\_destruct method. ProcessInformation needs to have an array type not to throw Fatal error. There is another class in symfony/process that has empty array assignment.\
 abstract class AbstractPipes implements PipesInterface
 
 ![](./images/GMP_writeup_html_529ef0cbcaa7b33b.png)
 
-Make $this-&gt;pipes reference to $this→processInformation. They point into same zval in memory. When $this→pipes is assigned an empty array, then $this→processInformation too.
+Make $this-&gt;pipes reference to $this→processInformation. They point into same zval in memory. When $this→pipes is assigned an empty array, then $this→processInformation too.\
 $this-&gt;fallbackStatus is merged with $this-&gt;processInformation
 
 ![](./images/GMP_writeup_html_471883d5b1b0d88c.png)
@@ -133,7 +133,6 @@ See what happened with GMP zval.
 ![](./images/GMP_writeup_html_7c406d47c6f2d96b.png)
 
 Handle of GMP zval is equal to <span lang="en-US">fallbackStatus\[‘exitcode’\] it is 0x1.</span>
-
 See what function zend\_std\_get\_properties does.
 
 ![](./images/GMP_writeup_html_f54de01b309fe5a5.png)
