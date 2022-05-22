@@ -145,16 +145,14 @@ See what function zend\_std\_get\_properties does.
 
 ![](./images/GMP_writeup_html_80d83e6e1df5d569.png)
 
-Z\_OBJ\_HANDLE\_P(zval\_p) Z\_OBJ\_HANDLE(\*zval\_p)
-\#define Z\_OBJ\_HANDLE(zval) Z\_OBJVAL(zval).handle
-\#define Z\_OBJVAL(zval) (zval).value.obj
+Z\_OBJ\_HANDLE\_P(zval\_p) Z\_OBJ\_HANDLE(\*zval\_p) \
+\#define Z\_OBJ\_HANDLE(zval) Z\_OBJVAL(zval).handle \
+\#define Z\_OBJVAL(zval) (zval).value.obj            \
 
 Z\_OBJ\_HANDLE\_P(zval\_p) returns zval\_p.value.obj.handle it is an object handle taken from zval structure. Z\_OBJ\_P macro takes a object handle number, and returns property hashtable of object with the given handle number. zend\_hash\_copy copies props of GMP object into this hashtable.
 Handle number is fully controlled from exploit. Using this bug an attacker can rewrite props of any object in PHP script.
 
-What object is good to rewrite properties?
-Symfony packages were installed using Composer. Composer has class autoloading mechanism.
-When autoload.php script included, object ClassLoader registered by spl\_autoload\_register as class autoload handler. When any new not loaded class is used, autoload handler executes.
+What object is good to rewrite properties? Symfony packages were installed using Composer. Composer has class autoloading mechanism. When autoload.php script included, object ClassLoader registered by spl\_autoload\_register as class autoload handler. When any new not loaded class is used, autoload handler executes.
 
 ![](./images/GMP_writeup_html_d92984e98dfe024d.png)
 
