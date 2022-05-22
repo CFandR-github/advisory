@@ -13,7 +13,9 @@ In original exploit author says about changing zval type using this code lines:
         }
 </pre>
 
+
 ![](./images/GMP_writeup_html_16a661db3f3f03db.png)
+
 
 PHP supports serialization/deserialization of references. It is done using "R:" syntax. $this→ryat property is a reference to GMP object. Rewrite of $this→ryat property leads to rewrite of GMP zval.
 There are many ways to rewrite zval in PHP, easies is code line like this:\
@@ -72,10 +74,9 @@ Stop on line 640 and print object zval. It is GMP object with handle = 0x3
 
 Set breakpoint on unserialize call.\
 gdb-peda$ b var.c:967\
+Continue execution.
 
-Continue execution.\
 Execution reaches second unserialize function call, located in unserialize method of Route class.
-
 ![](./images/GMP_writeup_html_26f81e12ef36bdd5.png)
 
 Because of invalid serialization string (it hash "A" char instead of closing bracket at the end), php\_var\_unserialize call returns <span style="font-style: normal">false</span> and zval\_dtor(return\_value) is called. If the zval\_dtor argument has object type, it’s \_\_destruct method executes.
@@ -83,14 +84,17 @@ Because of invalid serialization string (it hash "A" char instead of closing bra
 ![](./images/GMP_writeup_html_6df380b4eb83bc24.png)
 
 Output return\_value using printzv macros. It is object of *Process* class with unserialized properties.
+
 ![](./images/GMP_writeup_html_fabf90e0e3453489.png)
 
 Start POI chain from \_\_destruct method of Process class:
+
 ![](./images/GMP_writeup_html_94d4c6fdecb81873.png)
 
 Code line to rewrite zval is located in close() method.
 $this-&gt;exitcode = $this→processInformation\['exitcode'\];
 Execution reaches updateStatus method:
+
 ![](./images/GMP_writeup_html_a69107d944a8c250.png)
 
 Another problem is that proc\_get\_status returns false because $this→process is not resource.
@@ -111,25 +115,32 @@ $this-&gt;processInformation = proc\_get\_status($this→process);
 Rewrite of processInformation property can lead to \_\_destruct execution because refcount becomes 0. We can use reference (R:) again to rewrite processInformation in called \_\_destruct method. ProcessInformation needs to have an array type not to throw Fatal error. There is another class in symfony/process that has empty array assignment.
 
 abstract class AbstractPipes implements PipesInterface
+
 ![](./images/GMP_writeup_html_529ef0cbcaa7b33b.png)
 
 Make $this-&gt;pipes reference to $this→processInformation. They point into same zval in memory. When $this→pipes is assigned an empty array, then $this→processInformation too.
 $this-&gt;fallbackStatus is merged with $this-&gt;processInformation
+
 ![](./images/GMP_writeup_html_471883d5b1b0d88c.png)
 
-![](./images/GMP_writeup_html_9c8f95ee7c5531a6.png)After that close() method executes where line of code to rewrite zval is located.
+![](./images/GMP_writeup_html_9c8f95ee7c5531a6.png)
+
+After that close() method executes where line of code to rewrite zval is located.
 
 $this-&gt;exitcode is reference to GMP object in serialized string, writing into $this-&gt;exitcode rewrites zval of GMP object. Value to write is taken from <span lang="en-US">$this→fallbackStatus\[‘exitcode’\] and equal to **i:1;** in exploit string.</span>
 
 Continue execution.
+
 ![](./images/GMP_writeup_html_17c96806df5e2608.png)
 
 See what happened with GMP zval.
+
 ![](./images/GMP_writeup_html_7c406d47c6f2d96b.png)
 
 Handle of GMP zval is equal to <span lang="en-US">fallbackStatus\[‘exitcode’\] it is 0x1.</span>
 
 See what function zend\_std\_get\_properties does.
+
 ![](./images/GMP_writeup_html_f54de01b309fe5a5.png)
 
 ![](./images/GMP_writeup_html_80d83e6e1df5d569.png)
@@ -144,11 +155,15 @@ Handle number is fully controlled from exploit. Using this bug an attacker can r
 What object is good to rewrite properties?
 Symfony packages were installed using Composer. Composer has class autoloading mechanism.
 When autoload.php script included, object ClassLoader registered by spl\_autoload\_register as class autoload handler. When any new not loaded class is used, autoload handler executes.
+
 ![](./images/GMP_writeup_html_d92984e98dfe024d.png)
+
 ![](./images/GMP_writeup_html_281ab55b79068f04.png)
 
 classMap property stores a dictionary of classes and files for this classes to be autoloaded. Rewrite classMap property of ClassLoader object results into arbitrary file include.
+
 ![](./images/GMP_writeup_html_8e704d1feaf5f69b.png)
+
 ![](./images/GMP_writeup_html_d9a1ad86819365cd.png)
 
 Many applications include ‘autoload.php’ very first. ClassLoader object will have handle = 0x1! 
