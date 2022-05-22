@@ -113,7 +113,7 @@ abstract class AbstractPipes implements PipesInterface
 
 ![](./images/GMP_writeup_html_529ef0cbcaa7b33b.png)
 
-Make $this-&gt;pipes reference to $this→processInformation. They point into same zval in memory. When $this→pipes is assigned an empty array, then $this→processInformation too. $this-&gt;fallbackStatus is set in serialized string and merged with $this-&gt;processInformation
+Make $this-&gt;pipes reference to $this→processInformation. They point into same zval in memory. When $this→pipes is assigned an empty array, then $this→processInformation too. $this-&gt;fallbackStatus is set in serialized string and merged with empty array $this-&gt;processInformation.
 
 ![](./images/GMP_writeup_html_471883d5b1b0d88c.png)
 
