@@ -1,709 +1,171 @@
+<p align="center"> Unfixed GMP Type Confusion </p>
 
-<p class="western" style="margin-bottom: 0in; line-height: 100%">					Unfixed
-GMP Type Confusion</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
+Requirements: PHP &lt;= 5.6.40
+Compiled with: '--with-gmp', '--enable-sigchild'
+Software: packages Symfony/process, symfony/routing &lt;= 3.4.47 installed from Composer
+Original GMP Type confusion bug was found by taoguangchen researcher and reported \[1\].
+The idea of exploit is to change zval structure \[2\] of GMP object during deserialization process.
+In original exploit author says about changing zval type using this code lines:
 
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">Requirements:
-PHP &lt;= 5.6.40  
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">Compiled
-with:  '--with-gmp',  '--enable-sigchild'</p>
-<p class="western" style="margin-bottom: 0in; border-top: none; border-bottom: 1px double #000000; border-left: none; border-right: none; padding-top: 0in; padding-bottom: 0.03in; padding-left: 0in; padding-right: 0in; line-height: 100%">
-Software:  packages Symfony/process,   symfony/routing &lt;= 3.4.47
-installed from Composer</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">Original
-GMP Type confusion bug was found by taoguangchen researcher and
-reported [1].</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">The
-idea of exploit is to change zval structure [2] of GMP object during
-deserialization process. 
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">In
-original exploit author says about changing zval type using this code
-lines:</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<pre class="western">	  function __wakeup()
+<pre class="western">	function __wakeup()
         {
-                $this-&gt;ryat = 1;
+            $this->ryat = 1;
         }
-<img src="../GMP_writeup_html_16a661db3f3f03db.png" name="GMP_writeup_html_16a661db3f3f03db" align="left" width="740" height="56" border="0"/>
-
-PHP supports serialization/deserialization of references. It is done using “R:” syntax. $this→ryat property is a reference to GMP object. Rewrite of $this→ryat property leads to rewrite of GMP zval.
-There are many ways to rewrite zval in PHP, easies is code line like this:</pre><p class="western" style="margin-bottom: 0in; line-height: 100%">
-$this→a = $this→b;</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">Part
-of exploit is to find this line in code of real web-application, and
-execute it during deserialization process.</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">Bug
-in GMP extension was “fixed” as part of delayed __wakeup patch.
-But source code in gmp.c file was not patched. So bypassing delayed
-__wakeup would result that this bug is still exploitable.</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">Delayed
-__wakeup patch was introduced in PHP 5.6.30. Generally it was a patch
-to prevent use-after-free bugs in unserialize. Exploits using
-use-after-free bugs are based on removing zval’s from memory in the
-middle of deserialization process and further reusing freed memory.
-Introduced patch suspends execution of object’s __wakeup method
-after deserialization process finishes. It prevents removing zval’s
-from memory during deserialization process.</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">There
-is another way to execute code in the middle of deserialization in
-PHP. 
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">In
-PHP there exists Serializable interface [3] It is for classes  that
-implement custom serialization/deserialization methods.
-Deserialization of these classes can not be delayed. They have
-special syntax in unserialize starting with “C:”.</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">In
-real web-apps “unserilaize” methods are small and don’t have
-code lines to rewrite zval. 
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">public
-function unserialize($data) {</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">    
-   unserialize($data);</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">}</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">If
-$data is invalid serialization string (bad format), 
-unserialize($data) call will not throw any fatal error. 
-Deserialization process will continue after unserializing
-custom-serialized object. This can be used to trigger __destruct
-method using unclosed brace in serialized $data string. Code of
-__destruct method will be executed in the middle of unserialization
-process! In code of __destruct method there is a big chance to find
-code lines that rewrite zval. The only restriction for this trick is
-to find a class in web-application code that implements Serializable
-interface.</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">As
-real-world example two packages from Symfony were taken: 
-symfony/process [4] and symfony/routing [5]. These packages are part
-of Drupal/PHPBB3 and other projects. Packages are installed from
-Composer manager [6].</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">Create
-composer.json file:</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">$
-cat composer.json</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">{</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">   
-&quot;require&quot;: {</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">    
-   &quot;symfony/process&quot;: &quot;v3.4.47&quot;,</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">    
-   &quot;symfony/routing&quot;: &quot;v3.4.47&quot;</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">   
-}</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">}</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">Run
-composer installer:</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">$
-composer install</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">Installer
-creates v<i>endor/</i> directory with PHP source files.</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">Search
-for code line to rewrite zval:</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">$this-&gt;exitcode
-= $this→processInformation['exitcode'];</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">This
-line located in metho<span style="font-style: normal"><span style="text-decoration: none"><span style="font-weight: normal">d
-of class Process and</span></span></span><i> very possible </i><span style="font-style: normal">can
-be reached from __destruct method.</span></p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">Search
-for class that implements Serializable</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">./routing/Route.php:class
-Route implements \Serializable</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">It
-has unserialize method with another unserialize function call.</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><img src="GMP_writeup_html_26f81e12ef36bdd5.png" name="Image1" align="left" width="634" height="141" border="0"/>
-<br/>
+</pre>
+![](./images/GMP_writeup_html_16a661db3f3f03db.png)
+
+PHP supports serialization/deserialization of references. It is done using "R:" syntax. $this→ryat property is a reference to GMP object. Rewrite of $this→ryat property leads to rewrite of GMP zval.
+There are many ways to rewrite zval in PHP, easies is code line like this:
+$this→a = $this→b;
+Part of exploit is to find this line in code of real web-application, and execute it during deserialization process.
 
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
+Bug in GMP extension was "fixed" as part of delayed \_\_wakeup patch. But source code in gmp.c file was not patched. So bypassing delayed \_\_wakeup would result that this bug is still exploitable.
+Delayed \_\_wakeup patch was introduced in PHP 5.6.30. Generally it was a patch to prevent use-after-free bugs in unserialize. Exploits using use-after-free bugs are based on removing zval’s from memory in the middle of deserialization process and further reusing freed memory. Introduced patch suspends execution of object’s \_\_wakeup method after deserialization process finishes. It prevents removing zval’s from memory during deserialization process.
 
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
+There is another way to execute code in the middle of deserialization in PHP.
+In PHP there exists Serializable interface \[3\] It is for classes that implement custom serialization/deserialization methods. Deserialization of these classes can not be delayed. They have special syntax in unserialize starting with "C:".
+In real web-apps "unserilaize" methods are small and don’t have code lines to rewrite zval.
+<pre class="western">public function unserialize($data) {
+	unserialize($data);
+}
+</pre>
 
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
+If $data is invalid serialization string (bad format), unserialize($data) call will not throw any fatal error. Deserialization process will continue after unserializing custom-serialized object. This can be used to trigger \_\_destruct method using unclosed brace in serialized $data string. Code of \_\_destruct method will be executed in the middle of unserialization process! In code of \_\_destruct method there is a big chance to find code lines that rewrite zval. The only restriction for this trick is to find a class in web-application code that implements Serializable interface.
 
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
+As real-world example two packages from Symfony were taken: symfony/process \[4\] and symfony/routing \[5\]. These packages are part of Drupal/PHPBB3 and other projects. Packages are installed from Composer manager \[6\].
 
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
+Create composer.json file:
+$ cat composer.json
+<pre class="western">{
+ 	"require": {
+ 	"symfony/process": "v3.4.47",
+ 	"symfony/routing": "v3.4.47"
+ 	}
+}
+</pre>
+Run composer installer:
+$ composer install
 
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
+Installer creates *vendor/* directory with PHP source files.
+Search for code line to rewrite zval:
+$this-&gt;exitcode = $this→processInformation\['exitcode'\];
+This line located in method of class Process and *very possible* can be reached from \_\_destruct method.
 
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
+Search for class that implements Serializable
+./routing/Route.php:class Route implements \\Serializable
+It has unserialize method with another unserialize function call.
+![](./images/GMP_writeup_html_26f81e12ef36bdd5.png)
 
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
+Let us run exploit and understand how it works.
+Set two breakpoints in gdb. First, when GMP object is created.
+gdb-peda$ b gmp.c:640
+![](./images/GMP_writeup_html_6ad048eec7b2057f.png)
 
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">Let
-us run exploit and understand how it works.</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">Set
-two breakpoints in gdb. First, when GMP object is created.</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
+Another breakpoint, where type confusion bug happens.
+gdb-peda$ b gmp.c:661
+![](./images/GMP_writeup_html_17c96806df5e2608.png)
 
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">gdb-peda$
-b gmp.c:640</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><img src="GMP_writeup_html_6ad048eec7b2057f.png" name="Image2" align="left" width="568" height="83" border="0"/>
-<br/>
+Rub gdb, unserialization of GMP object properties starts.
+Stop on line 640 and print object zval. It is GMP object with handle = 0x3
 
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
+![](./images/GMP_writeup_html_11ead780072e4865.png)
+Set breakpoint on unserialize call.
+gdb-peda$ b var.c:967
 
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
+Continue execution.
+Execution reaches second unserialize function call, located in unserialize method of Route class.
+![](./images/GMP_writeup_html_26f81e12ef36bdd5.png)
 
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
+Because of invalid serialization string (it hash "A" char <span lang="en-US">instead of closing bracket </span>at the end), php\_var\_unserialize call returns <span style="font-style: normal">false</span> and zval\_dtor(return\_value) is called. If the zval\_dtor argument has object type, it’s \_\_destruct method executes.
 
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
+![](./images/GMP_writeup_html_6df380b4eb83bc24.png)
 
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
+Output return\_value using printzv macros. It is object of *Process* class with unserialized properties.
 
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
+![](./images/GMP_writeup_html_fabf90e0e3453489.png)
 
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
+Start POI chain from \_\_destruct method of Process class:
 
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
+![](./images/GMP_writeup_html_94d4c6fdecb81873.png)
 
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
+Code line to rewrite zval is located in close() method.
+$this-&gt;exitcode = $this→processInformation\['exitcode'\];
+Execution reaches updateStatus method:
 
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
+![](./images/GMP_writeup_html_a69107d944a8c250.png)
 
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">Another
-breakpoint, where type confusion bug happens. 
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">gdb-peda$
-b  gmp.c:661</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><img src="GMP_writeup_html_17c96806df5e2608.png" name="Image3" align="left" width="665" height="112" border="0"/>
-<br/>
+Another problem is that proc\_get\_status returns false because $this→process is not resource.
+$this-&gt;processInformation property is assigned to false. So we can’t set $this-&gt;processInformation right in serialized string.
+There is some code after proc\_get\_status called:
 
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">Rub
-gdb,  unserialization of GMP object properties starts.</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">Stop
-on line 640 and print object zval.  It is GMP object with handle =
-0x3</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><img src="GMP_writeup_html_11ead780072e4865.png" name="Image4" align="left" width="578" height="368" border="0"/>
-<br/>
+<pre class="western">{
+ if ($this-&gt;fallbackStatus &amp;&amp; $this-&gt;enhanceSigchildCompatibility &amp;&amp; $this-&gt;isSigchildEnabled()) {
+ $this-&gt;processInformation = $this-&gt;fallbackStatus + $this-&gt;processInformation;
+ }
+}
+</pre>
+To pass $this→isSigchildEnabled() condition PHP needs to be compiled with "–enable-sigchild" option.
 
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
+If processInformation is false, addition of false and array gives Fatal error and script stops. But we need to write into processInformation by somehow.
+In PHP language, variable is deleted from memory, when it’s refcount becomes 0. If a variable is an object, it’s \_\_destructor method executes. Look closer on this line:
+$this-&gt;processInformation = proc\_get\_status($this→process);
+Rewrite of processInformation property can lead to \_\_destruct execution because refcount becomes 0. We can use reference (R:) again to rewrite processInformation in called \_\_destruct method. ProcessInformation needs to have an array type not to throw Fatal error. There is another class in symfony/process that has empty array assignment.
 
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
+abstract class AbstractPipes implements PipesInterface
+![](./images/GMP_writeup_html_529ef0cbcaa7b33b.png)
 
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
+Make $this-&gt;pipes reference to $this→processInformation. They point into same zval in memory. When $this→pipes is assigned an empty array, then $this→processInformation too.
+$this-&gt;fallbackStatus is merged with $this-&gt;processInformation
+![](./images/GMP_writeup_html_471883d5b1b0d88c.png)
 
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
+![](./images/GMP_writeup_html_9c8f95ee7c5531a6.png)After that close() method executes where line of code to rewrite zval is located.
 
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
+$this-&gt;exitcode is reference to GMP object in serialized string, writing into $this-&gt;exitcode rewrites zval of GMP object. Value to write is taken from <span lang="en-US">$this→fallbackStatus\[‘exitcode’\] and equal to **i:1;** in exploit string.</span>
 
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
+Continue execution.
+![](./images/GMP_writeup_html_17c96806df5e2608.png)
 
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
+See what happened with GMP zval.
+![](./images/GMP_writeup_html_7c406d47c6f2d96b.png)
 
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
+Handle of GMP zval is equal to <span lang="en-US">fallbackStatus\[‘exitcode’\] it is 0x1.</span>
 
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
+See what function zend\_std\_get\_properties does.
+![](./images/GMP_writeup_html_f54de01b309fe5a5.png)
 
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
+![](./images/GMP_writeup_html_80d83e6e1df5d569.png)
 
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
+Z\_OBJ\_HANDLE\_P(zval\_p) Z\_OBJ\_HANDLE(\*zval\_p)
+\#define Z\_OBJ\_HANDLE(zval) Z\_OBJVAL(zval).handle
+\#define Z\_OBJVAL(zval) (zval).value.obj
 
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
+Z\_OBJ\_HANDLE\_P(zval\_p) returns zval\_p.value.obj.handle it is an object handle taken from zval structure. Z\_OBJ\_P macro takes a object handle number, and returns property hashtable of object with the given handle number. zend\_hash\_copy copies props of GMP object into this hashtable.
+Handle number is fully controlled from exploit. Using this bug an attacker can rewrite props of any object in PHP script.
 
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
+What object is good to rewrite properties?
+Symfony packages were installed using Composer. Composer has class autoloading mechanism.
+When autoload.php script included, object ClassLoader registered by spl\_autoload\_register as class autoload handler. When any new not loaded class is used, autoload handler executes.
+![](./images/GMP_writeup_html_d92984e98dfe024d.png)
+![](./images/GMP_writeup_html_281ab55b79068f04.png)
 
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">Set
-breakpoint on unserialize call.</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">gdb-peda$
-b var.c:967</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">Continue
-execution.</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">Execution
-reaches second unserialize function call, located in unserialize
-method of Route class.</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><img src="GMP_writeup_html_26f81e12ef36bdd5.png" name="Image5" align="left" width="634" height="100" border="0"/>
-<br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">Because
-of invalid serialization string (it hash “A” char <span lang="en-US">instead
-of closing bracket </span>at the end), php_var_unserialize call
-returns <span style="font-style: normal">false</span> and
-zval_dtor(return_value) is called. If the zval_dtor argument has
-object type,  it’s __destruct method executes.</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><img src="GMP_writeup_html_6df380b4eb83bc24.png" name="Image6" align="left" width="665" height="153" border="0"/>
-<br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">Output
-return_value using printzv macros. It is object of <i><span style="font-weight: normal">Process</span></i>
-class with unserialized properties.</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><img src="GMP_writeup_html_fabf90e0e3453489.png" name="Image7" align="left" width="652" height="83" border="0"/>
-<br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">Start
-POI chain from __destruct method of Process class:</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><img src="GMP_writeup_html_94d4c6fdecb81873.png" name="Image8" align="left" width="400" height="105" border="0"/>
-<br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">Code
-line to rewrite zval is located in close() method.</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">$this-&gt;exitcode
-= $this→processInformation['exitcode'];</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">Execution
-reaches updateStatus method:</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><img src="GMP_writeup_html_a69107d944a8c250.png" name="Image9" align="left" width="665" height="243" border="0"/>
-<br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">Another
-problem is that proc_get_status returns false because $this→process
-is not resource.</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">$this-&gt;processInformation
-property is assigned to false. So we can’t set
-$this-&gt;processInformation right in serialized string.</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">There
-is some code after proc_get_status called:</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"> if
-($this-&gt;fallbackStatus &amp;&amp;
-$this-&gt;enhanceSigchildCompatibility &amp;&amp;
-$this-&gt;isSigchildEnabled()) {</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">    
-       $this-&gt;processInformation = $this-&gt;fallbackStatus +
-$this-&gt;processInformation;</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">  }</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">To
-pass  $this→isSigchildEnabled()  condition PHP needs to be compiled
-with “–enable-sigchild” option. 
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">If
-processInformation is false, addition of false and array gives Fatal
-error and script stops. But we need to write into processInformation
-by somehow. 
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">In
-PHP language, variable is deleted from memory, when it’s refcount
-becomes 0. If a variable is an object, it’s __destructor method
-executes. Look closer on this line:</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">$this-&gt;processInformation
-= proc_get_status($this→process);</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">Rewrite
-of processInformation property can lead to __destruct execution
-because refcount becomes 0. We can use reference (R:) again to
-rewrite processInformation in called __destruct method. 
-ProcessInformation needs to have an array type not to throw Fatal
-error. There is another class in symfony/process that has empty array
-assignment.</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">abstract
-class AbstractPipes implements PipesInterface</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><img src="GMP_writeup_html_529ef0cbcaa7b33b.png" name="Image10" align="left" width="518" height="139" border="0"/>
-<br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">Make
-$this-&gt;pipes reference to $this→processInformation. They point
-into same zval in memory.</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">When
-$this→pipes  i<span lang="en-US">s assigned an empty array,</span>
-then $this→processInformation too.</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">$this-&gt;fallbackStatus
-is merged with $this-&gt;processInformation</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><img src="GMP_writeup_html_471883d5b1b0d88c.png" name="Image11" align="left" width="665" height="38" border="0"/>
-<br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">A<img src="GMP_writeup_html_9c8f95ee7c5531a6.png" name="Image12" align="left" width="665" height="155" border="0"/>
-fter
-that close() method  executes where line of code to rewrite zval is
-located.</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">$this-&gt;exitcode
-is reference to GMP object in serialized string, writing into
-$this-&gt;exitcode rewrites zval of GMP object. Value to write is
-taken from <span lang="en-US">$this→fallbackStatus[‘exitcode’] 
-and equal to </span><span lang="en-US"><b>i:1; </b></span><span lang="en-US"><span style="font-weight: normal">in
-exploit string.</span></span></p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">Continue
-execution. 
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><img src="GMP_writeup_html_17c96806df5e2608.png" name="Image13" align="left" width="665" height="112" border="0"/>
-<br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">See
-what happened with GMP zval.</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><img src="GMP_writeup_html_7c406d47c6f2d96b.png" name="Image14" align="left" width="559" height="325" border="0"/>
-<br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">Handle
-of GMP zval is equal to <span lang="en-US">fallbackStatus[‘exitcode’]
- it is 0x1.</span></p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">See
-what function zend_std_get_properties does.</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><img src="GMP_writeup_html_f54de01b309fe5a5.png" name="Image15" align="left" width="665" height="165" border="0"/>
-<br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><img src="GMP_writeup_html_80d83e6e1df5d569.png" name="Image16" align="left" width="665" height="26" border="0"/>
-<br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">
-Z_OBJ_HANDLE_P(zval_p)	            Z_OBJ_HANDLE(*zval_p)</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">#define
-Z_OBJ_HANDLE(zval)		Z_OBJVAL(zval).handle</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">#define
-Z_OBJVAL(zval)			(zval).value.obj</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">Z_OBJ_HANDLE_P(zval_p)
-returns zval_p.value.obj.handle it is an object handle taken from
-zval structure. Z_OBJ_P macro takes a object handle number, and
-returns property hashtable of object with the given handle number.
-zend_hash_copy copies props of GMP object into this hashtable.</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">Handle
-number is fully controlled from exploit. Using this bug an attacker
-can rewrite props of any object in PHP script.</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">What
-object is good to rewrite properties?</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">Symfony
-packages were installed using Composer. Composer has class
-autoloading mechanism.</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">When
-autoload.php script included, object ClassLoader registered by
-spl_autoload_register as class autoload handler. When any new not
-loaded class is used, autoload handler executes.</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><img src="GMP_writeup_html_d92984e98dfe024d.png" name="Image17" align="left" width="665" height="56" border="0"/>
-<br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><img src="GMP_writeup_html_281ab55b79068f04.png" name="Image18" align="left" width="497" height="125" border="0"/>
-<br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">classMap
-property stores a dictionary of classes and files for this classes to
-be autoloaded.  Rewrite classMap property of ClassLoader object
-results into arbitrary file include.</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><img src="GMP_writeup_html_8e704d1feaf5f69b.png" name="Image19" align="left" width="560" height="106" border="0"/>
-<br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><img src="GMP_writeup_html_d9a1ad86819365cd.png" name="Image20" align="left" width="396" height="80" border="0"/>
-<br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">Many
-applications include ‘autoload.php’ very first. ClassLoader
-object will have handle = 0x1!</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">No
-need to bruteforce handle. It makes exploit very stable.</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">To
-write 0x1 into handle id no need to create integer zval, attacker can
-use boolean type. PHP boolean type is represented in memory as 0 or 1
-integer. Code lines like $this→prop = true   are more common in
-real code than property assignment demonstrated previously. <span lang="en-US">Most
-importantly, with boolean zval it is still possible to overwrite
-Composer object. Usage of $this→prop=true is demonstrated in
-another advisory.</span></p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">References:</p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">[1]
-<font color="#000080"><span lang="zxx"><u><a href="https://bugs.php.net/bug.php?id=70513">https://bugs.php.net/bug.php?id=70513</a></u></span></font></p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">[2]
-<font color="#000080"><span lang="zxx"><u><a href="https://www.phpinternalsbook.com/php5/zvals/basic_structure.html">https://www.phpinternalsbook.com/php5/zvals/basic_structure.html</a></u></span></font></p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">[3]
-<font color="#000080"><span lang="zxx"><u><a href="https://www.php.net/manual/en/class.serializable">https://www.php.net/manual/en/class.serializable</a></u></span></font></p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">[4]
-<font color="#000080"><span lang="zxx"><u><a href="http://packagist.org/packages/symfony/process">http://packagist.org/packages/symfony/process</a></u></span></font></p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">[5]
-<font color="#000080"><span lang="zxx"><u><a href="http://packagist.org/packages/symfony/routing">http://packagist.org/packages/symfony/routing</a></u></span></font></p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%">[6]
-<font color="#000080"><span lang="zxx"><u><a href="https://getcomposer.org/">https://getcomposer.org/</a></u></span></font></p>
-<p class="western" style="margin-bottom: 0in; line-height: 100%"><br/>
-
-</p>
+classMap property stores a dictionary of classes and files for this classes to be autoloaded. Rewrite classMap property of ClassLoader object results into arbitrary file include.
+![](./images/GMP_writeup_html_8e704d1feaf5f69b.png)
+![](./images/GMP_writeup_html_d9a1ad86819365cd.png)
+
+Many applications include ‘autoload.php’ very first. ClassLoader object will have handle = 0x1! 
+No need to bruteforce handle. It makes exploit very stable.
+To write 0x1 into handle id no need to create integer zval, attacker can use boolean type. PHP boolean type is represented in memory as 0 or 1 integer. Code lines like $this→prop = true are more common in real code than property assignment demonstrated previously. <span lang="en-US">Most importantly, with boolean zval it is still possible to overwrite Composer object. Usage of $this→prop=true is demonstrated in another advisory.</span>
+
+References:
+
+\[1\] <font color="#000080"><span lang="zxx"><u><https://bugs.php.net/bug.php?id=70513></u></span></font>
+
+\[2\] <font color="#000080"><span lang="zxx"><u>[https://www.phpinternalsbook.com/php5/zvals/basic\_structure.html](https://www.phpinternalsbook.com/php5/zvals/basic_structure.html)</u></span></font>
+
+\[3\] <font color="#000080"><span lang="zxx"><u><https://www.php.net/manual/en/class.serializable></u></span></font>
+
+\[4\] <font color="#000080"><span lang="zxx"><u><http://packagist.org/packages/symfony/process></u></span></font>
+
+\[5\] <font color="#000080"><span lang="zxx"><u><http://packagist.org/packages/symfony/routing></u></span></font>
+
+\[6\] <font color="#000080"><span lang="zxx"><u><https://getcomposer.org/></u></span></font>
