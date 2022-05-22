@@ -12,7 +12,7 @@ In original exploit author says about changing zval type using this code lines:
             $this->ryat = 1;
         }
 </pre>
-![](./images/GMP_writeup_html_16a661db3f3f03db.png)
+<img src="../GMP_writeup_html_16a661db3f3f03db.png" name="GMP_writeup_html_16a661db3f3f03db" align="left" width="740" height="56" border="0"/>
 
 PHP supports serialization/deserialization of references. It is done using "R:" syntax. $this→ryat property is a reference to GMP object. Rewrite of $this→ryat property leads to rewrite of GMP zval.
 There are many ways to rewrite zval in PHP, easies is code line like this:
