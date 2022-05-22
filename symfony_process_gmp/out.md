@@ -12,6 +12,7 @@ In original exploit author says about changing zval type using this code lines:
             $this->ryat = 1;
         }
 </pre>
+
 ![](./images/GMP_writeup_html_16a661db3f3f03db.png)
 
 PHP supports serialization/deserialization of references. It is done using "R:" syntax. $this→ryat property is a reference to GMP object. Rewrite of $this→ryat property leads to rewrite of GMP zval.
@@ -50,26 +51,31 @@ This line located in method of class Process and *very possible* can be reached 
 Search for class that implements Serializable\
 ./routing/Route.php:class Route implements \\Serializable\
 It has unserialize method with another unserialize function call.
+
 ![](./images/GMP_writeup_html_26f81e12ef36bdd5.png)
 
 Let us run exploit and understand how it works.\
 Set two breakpoints in gdb. First, when GMP object is created.\
 gdb-peda$ b gmp.c:640
+
 ![](./images/GMP_writeup_html_6ad048eec7b2057f.png)
 
 Another breakpoint, where type confusion bug happens.\
-gdb-peda$ b gmp.c:661\
+gdb-peda$ b gmp.c:661
+
 ![](./images/GMP_writeup_html_17c96806df5e2608.png)
 
 Rub gdb, unserialization of GMP object properties starts.\
-Stop on line 640 and print object zval. It is GMP object with handle = 0x3\
+Stop on line 640 and print object zval. It is GMP object with handle = 0x3
 
 ![](./images/GMP_writeup_html_11ead780072e4865.png)
+
 Set breakpoint on unserialize call.\
 gdb-peda$ b var.c:967\
 
 Continue execution.\
 Execution reaches second unserialize function call, located in unserialize method of Route class.
+
 ![](./images/GMP_writeup_html_26f81e12ef36bdd5.png)
 
 Because of invalid serialization string (it hash "A" char instead of closing bracket at the end), php\_var\_unserialize call returns <span style="font-style: normal">false</span> and zval\_dtor(return\_value) is called. If the zval\_dtor argument has object type, it’s \_\_destruct method executes.
