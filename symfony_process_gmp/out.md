@@ -103,11 +103,10 @@ There is some code after proc\_get\_status called:
 
 <pre class="western">
  if ($this-&gt;fallbackStatus &amp;&amp; $this-&gt;enhanceSigchildCompatibility &amp;&amp; $this-&gt;isSigchildEnabled()) {
- $this-&gt;processInformation = $this-&gt;fallbackStatus + $this-&gt;processInformation;
+      $this-&gt;processInformation = $this-&gt;fallbackStatus + $this-&gt;processInformation;
  }
 </pre>
-To pass $this→isSigchildEnabled() condition PHP needs to be compiled with "–enable-sigchild" option.
-If processInformation is false, addition of false and array gives Fatal error and script stops. But we need to write into processInformation by somehow.
+To pass $this→isSigchildEnabled() condition PHP needs to be compiled with "–enable-sigchild" option.\ If processInformation is false, addition of false and array gives Fatal error and script stops. But we need to write into processInformation by somehow.
 In PHP language, variable is deleted from memory, when it’s refcount becomes 0. If a variable is an object, it’s \_\_destructor method executes. Look closer on this line:
 $this-&gt;processInformation = proc\_get\_status($this→process);
 Rewrite of processInformation property can lead to \_\_destruct execution because refcount becomes 0. We can use reference (R:) again to rewrite processInformation in called \_\_destruct method. ProcessInformation needs to have an array type not to throw Fatal error. There is another class in symfony/process that has empty array assignment.
