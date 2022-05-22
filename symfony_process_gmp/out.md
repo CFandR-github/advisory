@@ -1,4 +1,5 @@
 ##Unfixed GMP Type Confusion
+
 Requirements: PHP &lt;= 5.6.40
 Compiled with: '--with-gmp', '--enable-sigchild'
 Software: packages Symfony/process, symfony/routing &lt;= 3.4.47 installed from Composer
@@ -33,8 +34,8 @@ If $data is invalid serialization string (bad format), unserialize($data) call w
 
 As real-world example two packages from Symfony were taken: symfony/process \[4\] and symfony/routing \[5\]. These packages are part of Drupal/PHPBB3 and other projects. Packages are installed from Composer manager \[6\].
 
-Create composer.json file:
-$ cat composer.json
+Create composer.json file:\
+$ cat composer.json\
 <pre class="western">{
  	"require": {
  	"symfony/process": "v3.4.47",
@@ -42,12 +43,12 @@ $ cat composer.json
  	}
 }
 </pre>
-Run composer installer:
+Run composer installer:\
 $ composer install
 
-Installer creates *vendor/* directory with PHP source files.
-Search for code line to rewrite zval:
-$this-&gt;exitcode = $this→processInformation\['exitcode'\];
+Installer creates *vendor* directory with PHP source files.
+Search for code line to rewrite zval:\
+$this-&gt;exitcode = $this→processInformation\['exitcode'\];\
 This line located in method of class Process and *very possible* can be reached from \_\_destruct method.
 
 Search for class that implements Serializable
