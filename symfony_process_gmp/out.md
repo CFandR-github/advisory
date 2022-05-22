@@ -101,19 +101,16 @@ Another problem is that proc\_get\_status returns false because $this→process 
 $this-&gt;processInformation property is assigned to false. So we can’t set $this-&gt;processInformation right in serialized string.
 There is some code after proc\_get\_status called:
 
-<pre class="western">{
+<pre class="western">
  if ($this-&gt;fallbackStatus &amp;&amp; $this-&gt;enhanceSigchildCompatibility &amp;&amp; $this-&gt;isSigchildEnabled()) {
  $this-&gt;processInformation = $this-&gt;fallbackStatus + $this-&gt;processInformation;
  }
-}
 </pre>
 To pass $this→isSigchildEnabled() condition PHP needs to be compiled with "–enable-sigchild" option.
-
 If processInformation is false, addition of false and array gives Fatal error and script stops. But we need to write into processInformation by somehow.
 In PHP language, variable is deleted from memory, when it’s refcount becomes 0. If a variable is an object, it’s \_\_destructor method executes. Look closer on this line:
 $this-&gt;processInformation = proc\_get\_status($this→process);
 Rewrite of processInformation property can lead to \_\_destruct execution because refcount becomes 0. We can use reference (R:) again to rewrite processInformation in called \_\_destruct method. ProcessInformation needs to have an array type not to throw Fatal error. There is another class in symfony/process that has empty array assignment.
-
 abstract class AbstractPipes implements PipesInterface
 
 ![](./images/GMP_writeup_html_529ef0cbcaa7b33b.png)
@@ -126,9 +123,7 @@ $this-&gt;fallbackStatus is merged with $this-&gt;processInformation
 ![](./images/GMP_writeup_html_9c8f95ee7c5531a6.png)
 
 After that close() method executes where line of code to rewrite zval is located.
-
 $this-&gt;exitcode is reference to GMP object in serialized string, writing into $this-&gt;exitcode rewrites zval of GMP object. Value to write is taken from <span lang="en-US">$this→fallbackStatus\[‘exitcode’\] and equal to **i:1;** in exploit string.</span>
-
 Continue execution.
 
 ![](./images/GMP_writeup_html_17c96806df5e2608.png)
@@ -147,7 +142,7 @@ See what function zend\_std\_get\_properties does.
 
 Z\_OBJ\_HANDLE\_P(zval\_p) Z\_OBJ\_HANDLE(\*zval\_p) \
 \#define Z\_OBJ\_HANDLE(zval) Z\_OBJVAL(zval).handle \
-\#define Z\_OBJVAL(zval) (zval).value.obj            \
+\#define Z\_OBJVAL(zval) (zval).value.obj
 
 Z\_OBJ\_HANDLE\_P(zval\_p) returns zval\_p.value.obj.handle it is an object handle taken from zval structure. Z\_OBJ\_P macro takes a object handle number, and returns property hashtable of object with the given handle number. zend\_hash\_copy copies props of GMP object into this hashtable.
 Handle number is fully controlled from exploit. Using this bug an attacker can rewrite props of any object in PHP script.
@@ -171,13 +166,8 @@ To write 0x1 into handle id no need to create integer zval, attacker can use boo
 References:
 
 \[1\] <font color="#000080"><span lang="zxx"><u><https://bugs.php.net/bug.php?id=70513></u></span></font>
-
 \[2\] <font color="#000080"><span lang="zxx"><u>[https://www.phpinternalsbook.com/php5/zvals/basic\_structure.html](https://www.phpinternalsbook.com/php5/zvals/basic_structure.html)</u></span></font>
-
 \[3\] <font color="#000080"><span lang="zxx"><u><https://www.php.net/manual/en/class.serializable></u></span></font>
-
 \[4\] <font color="#000080"><span lang="zxx"><u><http://packagist.org/packages/symfony/process></u></span></font>
-
 \[5\] <font color="#000080"><span lang="zxx"><u><http://packagist.org/packages/symfony/routing></u></span></font>
-
 \[6\] <font color="#000080"><span lang="zxx"><u><https://getcomposer.org/></u></span></font>
