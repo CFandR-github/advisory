@@ -20,12 +20,18 @@ $ cat composer.json
 
 $ composer install
 
+1) Search for class with Serializable interface.
+
+File symfony/routing/Route.php:\
+class Route implements \\Serializable
+
+![](./images/symfony_rewrite_with_boolean_html_af81d1ef3bf49031.png)
+
+2) Search for code line to rewrite object property that is reachable from \__destruct.\
 Package "symfony/dependency-injection" has small number of \_\_destruct methods. And it has no code line to write property field into another property field, reachable from \_\_destruct. But package has line:
 <pre>$this-&gt;removedBindingIds[(int) $bindingId] = true;</pre>
-in removeBindings method.
-
+in removeBindings method.\
 In PHP, boolean variable is represented in memory as 0 or 1 integer. It is enough to rewrite handle of GMP object with value 0x1. In the finish of GMP deserialization we rewrite Composer object props, because it has handle = 0x1.\
-Exploit build process is very similar with exploitation from previous [advisory](https://github.com/CFandR-github/advisory/blob/main/symfony_process_gmp/symfony_0day_GMP_exploit.md).
 
 File symfony/dependency-injection/Loader/Configurator/ServiceConfigurator.php:\
 Class ServiceConfigurator extends AbstractServiceConfigurator
@@ -37,9 +43,8 @@ class ContainerBuilder extends Container implements TaggedContainerInterface
 
 ![](./images/symfony_rewrite_with_boolean_html_cebc0233944efb9a.png)
 
-File symfony/routing/Route.php:\
-class Route implements \\Serializable
+3) Use Composer object with handle = 0x1 and get arbitrary file include.
 
-![](./images/symfony_rewrite_with_boolean_html_af81d1ef3bf49031.png)
+Exploit build process is very similar with exploitation from previous [advisory](https://github.com/CFandR-github/advisory/blob/main/symfony_process_gmp/symfony_0day_GMP_exploit.md).
 
 Generated exploits can be found [here](https://github.com/CFandR-github/advisory/tree/main/symfony_rewrite_into_bool/generated_poi/).
