@@ -8,10 +8,9 @@ Needs PHP 5.6.* compiled with '--with-gmp'
 $ composer install
 
 2) Run POC:
-$ /home/user/php-5.6.40/bin/php ./test.php <path to poi.bin>
+$ /home/user/php-5.6.40/bin/php ./tester.php ./generated_poi/poi1.bin 
 
 */
-
 
 include __DIR__.'/vendor/autoload.php';
 
