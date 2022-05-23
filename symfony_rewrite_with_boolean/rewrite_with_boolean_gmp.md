@@ -18,7 +18,7 @@ $ cat composer.json
 }
 </pre>
 
-$ composer install\
+$ composer install
 
 Package "symfony/dependency-injection" has small number of \_\_destruct methods. And it has no code line to write property field into another property field, reachable from \_\_destruct. But package has line:
 <pre>$this-&gt;removedBindingIds[(int) $bindingId] = true;</pre>
