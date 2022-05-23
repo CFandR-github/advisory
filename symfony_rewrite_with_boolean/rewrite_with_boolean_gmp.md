@@ -45,4 +45,4 @@ class ContainerBuilder extends Container implements TaggedContainerInterface
 3\) Use Composer object with handle = 0x1 and get arbitrary file include.\
 Exploit build process is very similar with exploitation from previous [advisory](https://github.com/CFandR-github/advisory/blob/main/symfony_process_gmp/symfony_0day_GMP_exploit.md).
 
-Generated exploits can be found [here](https://github.com/CFandR-github/advisory/tree/main/symfony_rewrite_into_bool/generated_poi/).
+Generated exploits can be found [here](https://github.com/CFandR-github/advisory/tree/main/symfony_rewrite_with_boolean/generated_poi/).
