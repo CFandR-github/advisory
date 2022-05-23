@@ -20,14 +20,14 @@ $ cat composer.json
 
 $ composer install
 
-1) Search for class with Serializable interface.
+1\) Search for class with Serializable interface.
 
 File symfony/routing/Route.php:\
 class Route implements \\Serializable
 
 ![](./images/symfony_rewrite_with_boolean_html_af81d1ef3bf49031.png)
 
-2) Search for code line to rewrite object property that is reachable from \__destruct.\
+2\) Search for code line to rewrite object property that is reachable from \__destruct.\
 Package "symfony/dependency-injection" has small number of \_\_destruct methods. And it has no code line to write property field into another property field, reachable from \_\_destruct. But package has line:
 <pre>$this-&gt;removedBindingIds[(int) $bindingId] = true;</pre>
 in removeBindings method.\
@@ -43,7 +43,7 @@ class ContainerBuilder extends Container implements TaggedContainerInterface
 
 ![](./images/symfony_rewrite_with_boolean_html_cebc0233944efb9a.png)
 
-3) Use Composer object with handle = 0x1 and get arbitrary file include.
+3\) Use Composer object with handle = 0x1 and get arbitrary file include.
 
 Exploit build process is very similar with exploitation from previous [advisory](https://github.com/CFandR-github/advisory/blob/main/symfony_process_gmp/symfony_0day_GMP_exploit.md).
 
