@@ -3,7 +3,7 @@
 To build exploit for GMP Type Confusion bug we need to find in code:\
 1\) Class that implements Serializable interface\
 2\) Code line executed from \_\_destruct method to rewrite object property\
-3\) Find an object to rewrite props\
+3\) Find an object to rewrite props
 
 Symfony package "symfony/dependency-injection" was taken for analysis.
 
