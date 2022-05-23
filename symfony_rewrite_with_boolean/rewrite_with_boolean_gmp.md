@@ -19,12 +19,13 @@ $ cat composer.json
 </pre>
 
 $ composer install\
-Package "symfony/dependency-injection" has small number of \_\_destruct methods. And it has no code line to write property field into another property field, reachable from \_\_destruct.\
-But package has line:
+
+Package "symfony/dependency-injection" has small number of \_\_destruct methods. And it has no code line to write property field into another property field, reachable from \_\_destruct. But package has line:
 <pre>$this-&gt;removedBindingIds[(int) $bindingId] = true;</pre>
 in removeBindings method.
 
-In PHP, boolean variable is represented in memory as 0 or 1 integer. It is enough to rewrite handle of GMP object with value 0x1. In the finish of GMP deserialization we rewrite Composer object props, because it has handle = 0x1. Exploit build process is very similar with exploitation discussed in previous [advisory](https://github.com/CFandR-github/advisory/blob/main/symfony_process_gmp/symfony_0day_GMP_exploit.md).
+In PHP, boolean variable is represented in memory as 0 or 1 integer. It is enough to rewrite handle of GMP object with value 0x1. In the finish of GMP deserialization we rewrite Composer object props, because it has handle = 0x1.\
+Exploit build process is very similar with exploitation discussed in previous [advisory](https://github.com/CFandR-github/advisory/blob/main/symfony_process_gmp/symfony_0day_GMP_exploit.md).
 
 File symfony/dependency-injection/Loader/Configurator/ServiceConfigurator.php:\
 Class ServiceConfigurator extends AbstractServiceConfigurator
