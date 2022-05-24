@@ -14,7 +14,7 @@ Drupal 8.7.14 is final version officially supported by PHP 5.x.\
 Run composer installer:\
 $ composer install
 
-To build exploit for GMP Type Confusion bug we need to find in web-application code:
+To build exploit for GMP Type Confusion bug we need to find in web-application code:\
 1\) Class that implements Serializable interface\
 2\) Code line executed from \_\_destruct method to rewrite object property\
 3\) Find an object to rewrite props
