@@ -36,6 +36,8 @@ class Select extends Query implements SelectInterface
 
 ![](./images/drupal_gmp_rce_html_2a19fd0cda915467.png)
 
+Make $this->alterTags array element a reference to GMP object. In addTag method it is overwritten with integer 1.
+
 3\) Use Composer object with handle = 0x1 and get arbitrary file include.\
 Exploit build process is very similar with exploitation from previous <font color="#000080"><span lang="zxx"><u>[advisory](https://github.com/CFandR-github/advisory/blob/main/symfony_process_gmp/symfony_0day_GMP_exploit.md)</u></span></font>.
 
