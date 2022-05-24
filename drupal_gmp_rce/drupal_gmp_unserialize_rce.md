@@ -10,7 +10,8 @@ $ cat composer.json
     }
 }
 </pre>
-Run composer installer:  
+Drupal 8.7.14 is final version officially supported by PHP 5.x.\
+Run composer installer:\
 $ composer install
 
 To build exploit for GMP Type Confusion bug we need to find in web-application code:
