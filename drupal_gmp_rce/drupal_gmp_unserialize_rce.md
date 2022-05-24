@@ -42,4 +42,4 @@ Make $this->alterTags array element a reference to GMP object in serialized stri
 Exploit build process is very similar with exploitation from previous <font color="#000080"><span lang="zxx"><u>[advisory](https://github.com/CFandR-github/advisory/blob/main/symfony_process_gmp/symfony_0day_GMP_exploit.md)</u></span></font>.
 
 In real pentest, this unserialize vector was used with [CVE-2019-6340](https://www.exploit-db.com/exploits/46510) (needs Drupal version &lt; 8.5.11 OR &lt; 8.6.10)\
-POC can be found [here](./poc.php)
+Exploit POC can be found [here](./poc.php).
