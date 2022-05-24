@@ -18,7 +18,7 @@ To build exploit for GMP Type Confusion bug we need to find in web-application c
 2\) Code line executed from \_\_destruct method to rewrite object property\
 3\) Find an object to rewrite props
 
-Exploit build steps:
+Exploit build steps:\
 1\) Search for class with Serializable interface in Drupal CMS.\
 File vendor/symfony/routing/Route.php\
 class Route implements \\Serializable
