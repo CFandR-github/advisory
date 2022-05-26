@@ -1,0 +1,6 @@
+{
+    "require": {
+        "phpmailer/phpmailer": "6.6.0",
+        "swiftmailer/swiftmailer" : "6.2.4"
+    }
+}
