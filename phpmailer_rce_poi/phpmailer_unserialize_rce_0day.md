@@ -34,7 +34,8 @@ File swiftmailer/swiftmailer/lib/classes/Swift/ByteStream/FileByteStream.php:
 
 ![](./images/phpmailer_unserialize_rce_0day_html_82efcdc1f28d4e1e.png)
 
-$this→writer is set to resource on line 147. $this→reader property is PHPMailer object in serialized string. After that call resetReadHandle method.
+$this→writer is set to resource on line 147. After that call resetReadHandle method.\
+$this→reader property is PHPMailer object in serialized string.
 
 ![](./images/phpmailer_unserialize_rce_0day_html_2fa2985872d95ccb.png)
 
