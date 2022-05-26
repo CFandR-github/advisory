@@ -4,9 +4,9 @@ Requirements:
 
 - Any PHP version
 - Any phpmailer/phpmailer version
-- swiftmailer/swiftmailer &lt;= 6.2.4
+- package swiftmailer/swiftmailer &lt;= 6.2.4
 
-This advisory demonstrates usage of reference (R:) serialization and fast “\_\_destruct” method call in PHP unserialize exploits. PHPMailer has some interesting code reachable from \_\_destruct. But code needs to pass **is\_resource($this-&gt;smtp\_conn)**condition. Resource type can’t be serialized in PHP. The idea is to create resource during unserialization process and use reference to object property with resource.
+This advisory demonstrates usage of reference (R:) serialization and fast “\_\_destruct” method call in PHP unserialize exploits. PHPMailer has some interesting code reachable from \_\_destruct. But code needs to pass **is\_resource(\$this-&gt;smtp\_conn)** condition. Resource type can’t be serialized in PHP. The idea is to create resource during unserialization process and use reference to object property with resource.
 
 Install software:
 
