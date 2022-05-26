@@ -34,13 +34,11 @@ File swiftmailer/swiftmailer/lib/classes/Swift/ByteStream/FileByteStream.php:
 
 ![](./images/phpmailer_unserialize_rce_0day_html_82efcdc1f28d4e1e.png)
 
-$this→writer is set to resource on line 147. After that call resetReadHandle method.\
-$this→reader property is PHPMailer object in serialized string.
+$this→writer is set to resource on line 147. After that call resetReadHandle method. $this→reader property is PHPMailer object in serialized string.
 
 ![](./images/phpmailer_unserialize_rce_0day_html_2fa2985872d95ccb.png)
 
-fclose call on line 159 with object argument makes only Warning message, execution continues.
-
+fclose call on line 159 with object argument makes only Warning message, execution continues.\
 On line 160 $this→reader property is assigned to null. It leads to immediate \_\_destruct call.
 
 2\) Call \_\_destruct of PHPMailer object
