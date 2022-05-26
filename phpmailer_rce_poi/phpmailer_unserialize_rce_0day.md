@@ -8,8 +8,7 @@ Requirements:
 
 This advisory demonstrates usage of reference (R:) serialization and fast “\_\_destruct” method call in PHP unserialize exploits. PHPMailer has some interesting code reachable from \_\_destruct. But code needs to pass **is\_resource(\$this-&gt;smtp\_conn)** condition. Resource type can’t be serialized in PHP. The idea is to create resource during unserialization process and use reference to object property with resource.
 
-Install software:
-
+Install software:\
 $ cat composer.json
 <pre>
 {
@@ -35,7 +34,7 @@ File swiftmailer/swiftmailer/lib/classes/Swift/ByteStream/FileByteStream.php:
 
 ![](./images/phpmailer_unserialize_rce_0day_html_82efcdc1f28d4e1e.png)
 
-$this→writer is set to resource on line 147. $this→reader property is PHPMailer object in serialized string.
+$this→writer is set to resource on line 147. $this→reader property is PHPMailer object in serialized string. After that call resetReadHandle method.
 
 ![](./images/phpmailer_unserialize_rce_0day_html_2fa2985872d95ccb.png)
 
