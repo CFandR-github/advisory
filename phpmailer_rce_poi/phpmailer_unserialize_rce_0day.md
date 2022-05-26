@@ -39,7 +39,7 @@ $this→writer is set to resource on line 147. After that call resetReadHandle m
 ![](./images/phpmailer_unserialize_rce_0day_html_2fa2985872d95ccb.png)
 
 fclose call on line 159 with object argument makes only Warning message, execution continues.\
-On line 160 $this→reader property is assigned to null. It leads to immediate \_\_destruct call.
+On line 160 $this→reader property is assigned to null. Reference count of variable decreases and becomes 0. It leads to immediate \_\_destruct call.
 
 2\) Call \_\_destruct of PHPMailer object
 
@@ -57,7 +57,7 @@ $this→smtp\_conn is reference to $this→writer property in serialized string.
 
 ![](./images/phpmailer_unserialize_rce_0day_html_d1abe01062b81bd3.png)
 
-Execute method of any object using **call\_user\_func**. Set $this→Debugoutput with array.\
+Execute method of any object using **call\_user\_func** in "edebug" method. Set $this→Debugoutput with array in serialized string.\
 
 <pre>s:11:"Debugoutput";a:2:{i:0;O:29:"PHPMailer\\PHPMailer\\PHPMailer":2:{s:6:"Mailer";s:8:"sendmail";s:8:"Sendmail";s:22:"/bin/sh -c "uname -sp"";}i:1;s:8:"postSend";}}}</pre>
 
