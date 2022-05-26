@@ -5,7 +5,7 @@ Collection of advisory:
 
 ### symfony/process 
 Idea:
-PHP <= 5.6.40 with GMP + packages symfony/process and symfony/routing + fast \__destruct
+PHP <= 5.6.40 with GMP + packages symfony/process and symfony/routing + fast "\__destruct"
 
 POC source: [./symfony_process_gmp/poc.php](./symfony_process_gmp/poc.php)
 
@@ -34,6 +34,14 @@ PHP <= 5.6.40 with GMP + Drupal CMS
 POC source: [./drupal_gmp_rce/poc.php](./drupal_gmp_rce/poc.php)
 
 [Advisory](./drupal_gmp_rce/drupal_gmp_unserialize_rce.md)
+
+## phpmailer + swiftmailer 0day unserialize RCE (any PHP version)
+Idea:
+packages phpmailer/phpmailer and swiftmailer/swiftmailer + is_resource bypass + fast "\__destruct"
+
+POC source: [./phpmailer_rce_poi/phpmailer_poc.php](./phpmailer_rce_poi/phpmailer_poc.php)
+
+[Advisory](./phpmailer_rce_poi/phpmailer_unserialize_rce_0day.md)
 
 # Contacts
 Project channel in Telegram:
