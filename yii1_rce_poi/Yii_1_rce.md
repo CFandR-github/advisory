@@ -15,7 +15,8 @@ $config = array('basePath'=> '/var/www/', 'components' => array('cache' => array
 Yii::createWebApplication($config);
 </pre>
 
-Start object injection from "magic" method \_\_get. File yiisoft/yii/framework/base/Cmodule.php:
+Start object injection from "magic" method \_\_get. File yiisoft/yii/framework/base/Cmodule.php:\
+abstract class CModule extends CComponent
 
 ![](./images/Yii_1_rce_html_3591babb58d88a1e.png)
 
@@ -31,7 +32,7 @@ We control class name, constructor arguments and object properties.
 
 ![](./images/Yii_1_rce_html_e4ce4bda420dc6d6.png)
 
-After component creation, call init() method on line 394. Component has class CoutputCache.\
+After component creation, call init() method on line 394. Component has class COutputCache.\
 File yiisoft/yii/framework/web/widgets/COutputCache.php
 
 ![](./images/Yii_1_rce_html_de9bf51c3759a754.png)
@@ -44,8 +45,8 @@ In getCacheKey method evaluateExpression is called.
 
 ![](./images/Yii_1_rce_html_f14ae1c58cda0205.png)
 
-![](./images/Yii_1_rce_html_b35a08be45c660d.png)
-
 **Finally get eval** call in evaluateExpression method! File yiisoft/yii/framework/base/Ccomponent.php:
+
+![](./images/Yii_1_rce_html_b35a08be45c660d.png)
 
 [POC](./yii1_rce_poi.php) can be found here.
