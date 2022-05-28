@@ -43,6 +43,14 @@ POC source: [./phpmailer_rce_poi/phpmailer_poc.php](./phpmailer_rce_poi/phpmaile
 
 [Advisory](./phpmailer_rce_poi/phpmailer_unserialize_rce_0day.md)
 
+## Yii 1.x unserialize RCE (any PHP version)
+Idea:
+package yiisoft/yii + start POI from "\__get" method
+
+POC source: [./yii1_rce_poi/yii1_rce_poi.php](./yii1_rce_poi/yii1_rce_poi.php)
+
+[Advisory](./yii1_rce_poi/Yii_1_rce.md)
+
 # Contacts
 Project channel in Telegram:
 - [https://t.me/CFandR_project](https://t.me/CFandR_project)
