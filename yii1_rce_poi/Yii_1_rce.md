@@ -4,8 +4,8 @@ Requirements:
 - any Yii 1.x version
 - need property read from unserialized object
 
-Install Yii 1.x from Composer:\
-$ composer require yiisoft/yii\
+Install Yii 1.x from Composer:
+<pre>$ composer require yiisoft/yii</pre>
 Create Yii test page with minimal code to initialize web-application.
 <pre>
 require './vendor/autoload.php';
