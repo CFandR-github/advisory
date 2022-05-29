@@ -26,7 +26,7 @@ This class has interesting \_\_wakeup method:
 
 ![](./images/symfony_finder_rce_0day_html_c5826aa8dbb07531.png)
 
-On line 181 $this→data is property from serialized string. Foreach loop can call getIterator() method from another class that implements IteratorAggregate interface. Search for that class.\
+On line 181 $this→data is property from serialized string. Foreach loop can call getIterator() method from another class that implements IteratorAggregate interface. Search for that class.
 
 File symfony/finder/Iterator/SortableIterator.php:\
 class SortableIterator implements \\IteratorAggregate
@@ -39,9 +39,9 @@ How to get command execution from this method? See description of **uasort** fun
 
 First parameter is array to be sorted.\
 Second parameter is the comparison function. It can be any callable, set it to "**system**".\
-To pass iterator\_to\_array call on line 94, set $this→iterator as an object of class HeaderBag.\
+To pass iterator\_to\_array call on line 94, set $this→iterator as an object of class HeaderBag.
 
-File vendor/symfony/http-foundation/HeaderBag.php:
+File vendor/symfony/http-foundation/HeaderBag.php:\
 class HeaderBag implements \\IteratorAggregate, \\Countable
 
 ![](./images/symfony_finder_rce_0day_html_85c2cd25d6ece41f.png)
