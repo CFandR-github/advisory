@@ -39,7 +39,7 @@ $this→writer is set to resource on line 147. After that call resetReadHandle m
 ![](./images/phpmailer_unserialize_rce_0day_html_2fa2985872d95ccb.png)
 
 fclose call on line 159 with object argument makes only Warning message, execution continues.\
-On line 160 $this→reader property is assigned to null. Reference count of variable decreases and becomes 0. It leads to immediate \_\_destruct call.
+On line 160 $this→reader property is assigned to null. Previous zval value is object. It does not need to be stored in memory, and is removed. It leads to immediate \_\_destruct call.
 
 2\) Call \_\_destruct of PHPMailer object
 
