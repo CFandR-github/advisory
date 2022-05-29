@@ -41,7 +41,8 @@ First parameter is array to be sorted.\
 Second parameter is the comparison function. It can be any callable, set it to "**system**".\
 To pass iterator\_to\_array call on line 94, set $this→iterator as an object of class HeaderBag.\
 File vendor/symfony/http-foundation/HeaderBag.php:\
-class HeaderBag implements \\IteratorAggregate, \\Countable\
+
+class HeaderBag implements \\IteratorAggregate, \\Countable
 
 ![](./images/symfony_finder_rce_0day_html_85c2cd25d6ece41f.png)
 
