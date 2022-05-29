@@ -16,7 +16,7 @@ $ cat composer.json
  }
 }  
 </pre>
-$ composer install\
+$ composer install
 
 Lets look closer at POI-chain. Start from file vendor/symfony/http-kernel/DataCollector/DumpDataCollector.php:
 
@@ -26,15 +26,14 @@ This class has interesting \_\_wakeup method:
 
 ![](./images/symfony_finder_rce_0day_html_c5826aa8dbb07531.png)
 
-On line 181 $this→data property is set in serialized string. Foreach loop can call getIterator() method from another class that implements IteratorAggregate interface. Search for that class.\
+On line 181 $this→data is property from serialized string. Foreach loop can call getIterator() method from another class that implements IteratorAggregate interface. Search for that class.\
 
 File symfony/finder/Iterator/SortableIterator.php:\
 class SortableIterator implements \\IteratorAggregate
 
 ![](./images/symfony_finder_rce_0day_html_287f742e9754c543.png)
 
-How to get command execution from this method?\
-See description of **uasort** function on php.net:
+How to get command execution from this method? See description of **uasort** function on php.net:
 
 ![](./images/symfony_finder_rce_0day_html_dbe19da205b649ab.png)
 
@@ -43,12 +42,11 @@ Second parameter is the comparison function. It can be any callable, set it to "
 To pass iterator\_to\_array call on line 94, set $this→iterator as an object of class HeaderBag.\
 File vendor/symfony/http-foundation/HeaderBag.php:\
 class HeaderBag implements \\IteratorAggregate, \\Countable\
-Set this→headers an array to be passed into **uasort**.
 
 ![](./images/symfony_finder_rce_0day_html_85c2cd25d6ece41f.png)
 
-Get RCE:
+Set this→headers an array to be passed into **uasort**. Get RCE:
 
 ![](./images/symfony_finder_rce_0day_html_485955cda9d0ee8d.png)
 
-Download full POC here.
+Download full POC [here](./poc.php).
