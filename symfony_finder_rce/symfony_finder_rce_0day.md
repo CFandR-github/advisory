@@ -1,7 +1,7 @@
 # Package symfony/finder unserialize RCE
 
 This advisory demonstrates another unserialize RCE found in Symfony project.\
-Requirements:\
+Requirements:
 - packages symfony/finder and symfony/http-kernel
 - Any PHP 7.x version
 
@@ -17,24 +17,26 @@ $ cat composer.json
 }  
 </pre>
 $ composer install\
-Lets look closer at POI-chain.\
-Start from file vendor/symfony/http-kernel/DataCollector/DumpDataCollector.php:
 
-![](symfony_finder_rce_0day_html_4ecef5edcfea3ee7.png)
+Lets look closer at POI-chain. Start from file vendor/symfony/http-kernel/DataCollector/DumpDataCollector.php:
+
+![](./images/symfony_finder_rce_0day_html_4ecef5edcfea3ee7.png)
 
 This class has interesting \_\_wakeup method:
 
-O![](symfony_finder_rce_0day_html_c5826aa8dbb07531.png)n line 181 $this→data property is set in serialized string. Foreach loop can call getIterator() method from another class that implements IteratorAggregate interface. Search for that class.
+![](./images/symfony_finder_rce_0day_html_c5826aa8dbb07531.png)
+
+On line 181 $this→data property is set in serialized string. Foreach loop can call getIterator() method from another class that implements IteratorAggregate interface. Search for that class.\
 
 File symfony/finder/Iterator/SortableIterator.php:\
 class SortableIterator implements \\IteratorAggregate
 
-![](symfony_finder_rce_0day_html_287f742e9754c543.png)
+![](./images/symfony_finder_rce_0day_html_287f742e9754c543.png)
 
 How to get command execution from this method?\
-See description of **uasort** <span style="font-weight: normal">function on php.net:</span>
+See description of **uasort** function on php.net:
 
-![](symfony_finder_rce_0day_html_dbe19da205b649ab.png)
+![](./images/symfony_finder_rce_0day_html_dbe19da205b649ab.png)
 
 First parameter is array to be sorted.\
 Second parameter is the comparison function. It can be any callable, set it to "**system**".\
@@ -43,10 +45,10 @@ File vendor/symfony/http-foundation/HeaderBag.php:\
 class HeaderBag implements \\IteratorAggregate, \\Countable\
 Set this→headers an array to be passed into **uasort**.
 
-![](symfony_finder_rce_0day_html_85c2cd25d6ece41f.png)
+![](./images/symfony_finder_rce_0day_html_85c2cd25d6ece41f.png)
 
 Get RCE:
 
-![](symfony_finder_rce_0day_html_485955cda9d0ee8d.png)
+![](./images/symfony_finder_rce_0day_html_485955cda9d0ee8d.png)
 
 Download full POC here.
