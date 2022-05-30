@@ -2,6 +2,6 @@
     "require": {
         "symfony/finder": "5.4.8",
         "symfony/http-kernel": "5.4.9",
-	"symfony/service-contracts" : "2.5.1"
+	    "symfony/service-contracts" : "2.5.1"
     }
 }

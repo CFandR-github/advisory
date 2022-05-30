@@ -51,6 +51,14 @@ POC source: [./yii1_rce_poi/yii1_rce_poi.php](./yii1_rce_poi/yii1_rce_poi.php)
 
 [Advisory](./yii1_rce_poi/Yii_1_rce.md)
 
+## symfony/finder unserialize RCE (PHP 7.x)
+Idea:
+packages symfony/finder and symfony/http-kernel + getIterator() call
+
+POC source: [./symfony_finder_rce/poc.php](./symfony_finder_rce/poc.php)
+
+[Advisory](./symfony_finder_rce/symfony_finder_rce_0day.md)
+
 # Contacts
 Project channel in Telegram:
 - [https://t.me/CFandR_project](https://t.me/CFandR_project)
