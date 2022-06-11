@@ -21,9 +21,7 @@ Unserialized objects are created not within eval, but within custom stream wrapp
 Register custom protocol named «closure»
 
 ![](./images/opis_doc_html_c40565335f57429a.png)
-
 The protocol is accessed in the method SerializableClosure::unserialize:
-
 ![](./images/opis_doc_html_4dcf35cd8f1b14e0.png)
 
 Include function argument is passed as $path variable for [stream\_open](https://www.php.net/manual/ru/streamwrapper.stream-open.php) function.\
