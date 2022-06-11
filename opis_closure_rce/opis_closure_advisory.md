@@ -1,16 +1,17 @@
 # opis/closure + laravel/framework unserialize RCE
 
-**Opis Closure** is a library that aims to overcome PHP's limitations regarding closure serialization by providing a wrapper that will make all closures serializable. Install it from Composer:\
+**Opis Closure** is a library that aims to overcome PHP's limitations regarding closure serialization by providing a wrapper that will make all closures serializable [\[1\]](https://opis.io/closure/3.x/). Install it from Composer:\
 $ composer require opis/closure
 
-Start POI from SerializableClosure class.\
+Start Object Injection chain from SerializableClosure class.\
 Class SerializableClosure implements Serializable interface.
 
 ![](./images/opis_doc_html_1b9913e374913f3e.png)
 
-Enabled closure signing heavily reduces the ability to use this class in POP-chain. Without knowlegde of SecurityProvider::secret attacker will be unable to pass hashsum verification. But by default closure signing is disabled and securityProvider variable is null.
+Enabled closure signing [\[2\]](https://opis.io/closure/3.x/security.html) heavily reduces the ability to use this class in Object Injection chain. Without knowlegde of SecurityProvider::secret attacker will be unable to pass hashsum verification. But by default closure signing is disabled and securityProvider variable is null.
 
 Official documentation says:
+
 ![](./images/opis_doc_html_ae2f6139702fae29.png)
 
 Unserialized objects are created not within eval, but within custom stream wrapper.
@@ -25,8 +26,7 @@ The protocol is accessed in the method SerializableClosure::unserialize:
 
 ![](./images/opis_doc_html_4dcf35cd8f1b14e0.png)
 
-Include function argument is passed as $path variable for [stream\_open](https://www.php.net/manual/ru/streamwrapper.stream-open.php) function.
-
+Include function argument is passed as $path variable for [stream\_open](https://www.php.net/manual/ru/streamwrapper.stream-open.php) function.\
 $this→content property is assigned with php-code.
 
 ![](./images/opis_doc_html_f3e18164abcb3a0c.png)
@@ -51,3 +51,6 @@ $ composer require laravel/framework --dry-run\
 
 What we see? opis/closure package!\
 When web-developer installs laravel/framework for PHP 7.x, opis/closure is also installed too. Autoloader is generated for all installed packages. Maybe it is the easiest way to get unserialize RCE for Laravel framework.
+
+References: 
+1] 
