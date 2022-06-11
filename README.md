@@ -59,6 +59,14 @@ POC source: [./symfony_finder_rce/poc.php](./symfony_finder_rce/poc.php)
 
 [Advisory](./symfony_finder_rce/symfony_finder_rce_0day.md)
 
+## opis/closure + laravel/framework unserialize RCE
+Idea:
+package opis/closure + custom Serializable method + include
+
+POC source: [./opis_closure_rce/opis_closure_poi.php](./opis_closure_rce/opis_closure_poi.php)
+
+[Advisory](./opis_closure_rce/opis_closure_advisory.md)
+
 # Contacts
 Project channel in Telegram:
 - [https://t.me/CFandR_project](https://t.me/CFandR_project)
