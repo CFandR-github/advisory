@@ -13,15 +13,12 @@ Enabled closure signing [\[2\]](https://opis.io/closure/3.x/security.html) heavi
 Official documentation says:
 
 ![](./images/opis_doc_html_ae2f6139702fae29.png)
-
 Unserialized objects are created not within eval, but within custom stream wrapper.
 
 ![](./images/opis_doc_html_a8bd575581f00283.png)
-
 Register custom protocol named «closure»
 
 ![](./images/opis_doc_html_c40565335f57429a.png)
-
 The protocol is accessed in the method SerializableClosure::unserialize:
 
 ![](./images/opis_doc_html_4dcf35cd8f1b14e0.png)
