@@ -51,7 +51,7 @@ If PHP 7.x is used as default PHP,  when laravel/framework package installs, Com
 What we see? opis/closure package!\
 When web-developer installs laravel/framework package from Composer for PHP 7.x, opis/closure is also installed. Autoloader is generated for all installed packages. Opis unserialize vector works with Laravel. Maybe it is the easiest way to get unserialize RCE for Laravel framework.
 
-Download POC [here](./opis_closure_poi.php)
+Download POC [here](./opis_closure_poi.php).
 
 References: 
 1. [https://opis.io/closure/3.x/](https://opis.io/closure/3.x/)
