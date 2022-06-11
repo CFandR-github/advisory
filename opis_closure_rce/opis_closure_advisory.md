@@ -8,6 +8,7 @@ Start POI from SerializableClosure class.\
 Class SerializableClosure implements Serializable interface.
 
 ![](./images/opis_doc_html_1b9913e374913f3e.png)
+
 Enabled closure signing heavily reduces the ability to use this class in POP-chain. Without knowlegde of SecurityProvider::secret attacker will be unable to pass hashsum verification. But by default closure signing is disabled and securityProvider variable is null.
 
 Official documentation says:
@@ -16,6 +17,7 @@ Official documentation says:
 Unserialized objects are created not within eval, but within custom stream wrapper.
 
 ![](./images/opis_doc_html_a8bd575581f00283.png)
+
 Register custom protocol named «closure»
 
 ![](./images/opis_doc_html_c40565335f57429a.png)
@@ -47,5 +49,6 @@ If PHP 7.x is used as default PHP, Composer manager will install version 8.83.x 
 You can test what packages will be <span lang="en-US">installed with Laravel using</span> **--dry-run** command.\
 $ composer require laravel/framework --dry-run\
 ![](./images/opis_doc_html_747bb64c32d76432.png)
+
 What we see? opis/closure package!\
 When web-developer installs laravel/framework for PHP 7.x, opis/closure is also installed too. Autoloader is generated for all installed packages. Maybe it is the easiest way to get unserialize RCE for Laravel framework.
