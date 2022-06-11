@@ -1,10 +1,11 @@
 # opis/closure + laravel/framework unserialize RCE
 
 **Opis Closure** is a library that aims to overcome PHP's limitations regarding closure serialization by providing a wrapper that will make all closures serializable.\
-Install it from Composer:\
-$ composer require opis/closure
-Start POI from SerializableClosure class.\
 
+Install it from Composer:\
+$ composer require opis/closure\
+
+Start POI from SerializableClosure class.\
 Class SerializableClosure implements Serializable interface.
 
 ![](./images/opis_doc_html_1b9913e374913f3e.png)
