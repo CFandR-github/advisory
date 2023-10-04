@@ -67,6 +67,14 @@ POC source: [./opis_closure_rce/opis_closure_poi.php](./opis_closure_rce/opis_cl
 
 [Advisory](./opis_closure_rce/opis_closure_advisory.md)
 
+## doctrine/doctrine-bundle unserialize RCE
+Idea:
+combine LFI and file write POP-chains in doctrine/doctrine-bundle package to get RCE
+
+POC source: [./doctrine_rce/doctrine_poi_gen.php](./doctrine_rce/doctrine_poi_gen.php)
+
+[Advisory](./doctrine_rce/doctrine_rce_advisory.md)
+
 # Contacts
 Project channel in Telegram:
 - [https://t.me/CFandR_project](https://t.me/CFandR_project)
