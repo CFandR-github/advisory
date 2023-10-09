@@ -23,6 +23,7 @@ A way to get RCE is a little tricky, because it combines two POP-chains: arbitra
 Start from \_\_destruct in CacheAdapter class.
 
 File doctrine/cache/lib/Doctrine/Common/Cache/Psr6/CacheAdapter.php
+
 ![](images/doctrine_html_33eea6785efcfe8f.png)
 
 In «commit» method, call «delete» from any object.
@@ -38,6 +39,7 @@ File symfony/cache/Adapter/PhpArrayAdapter.php
 File symfony/cache/Traits/ContractsTrait.php
 
 ![](images/doctrine_html_e96927aa5995f80.png)
+
 What we see? Trait uses another trait!
 
 File symfony/cache-contracts/CacheTrait.php
@@ -69,4 +71,4 @@ Serialized «data» property written into file with constant name taken from «g
 ## Conclusion
 
 This example demonstrates the case when it's difficult to directly find functions leading to RCE (eval, system, etc) in code. But it's possible to combine two attack vectors to get RCE.
-Download exploit generator <a href="./gen_poi.php">here</a>, and script to test POI <a href="./test_poi.php">here</a>.
+Download exploit generator <a href="./doctrine_poi_gen.php">here</a>, and script to test POI <a href="./test_poi.php">here</a>.
